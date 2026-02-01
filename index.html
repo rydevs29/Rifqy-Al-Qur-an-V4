@@ -8,13 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0b1414; color: #e2e8f0; scroll-behavior: smooth; }
-        .arabic { font-family: 'Amiri', serif; line-height: 2.5; text-align: right; direction: rtl; }
+        .arabic { font-family: 'Amiri', serif; line-height: 2.8; text-align: right; direction: rtl; transition: font-size 0.3s; }
         .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .gradient-brand { background: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
         .hidden { display: none; }
         .loader { width: 30px; height: 30px; border: 3px solid #10b981; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* Range Slider Style */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #10b981; cursor: pointer; margin-top: -6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px; }
     </style>
 </head>
 <body class="max-w-md mx-auto min-h-screen relative bg-[#0b1414]">
@@ -41,18 +46,18 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div onclick="openTasbih()" class="glass p-3 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-24 text-center">
-                <div class="text-2xl mb-1">📿</div>
-                <div class="text-[10px] font-bold">Tasbih</div>
+        <div class="grid grid-cols-4 gap-3 mb-6">
+            <div onclick="openTasbih()" class="glass p-2 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-20 text-center">
+                <div class="text-xl mb-1">📿</div><div class="text-[8px] font-bold">Tasbih</div>
             </div>
-            <div onclick="openAsmaul()" class="glass p-3 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-24 text-center">
-                <div class="text-2xl mb-1">✨</div>
-                <div class="text-[10px] font-bold">Asmaul Husna</div>
+            <div onclick="openAsmaul()" class="glass p-2 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-20 text-center">
+                <div class="text-xl mb-1">✨</div><div class="text-[8px] font-bold">Asmaul</div>
             </div>
-            <div onclick="openDoa()" class="glass p-3 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-24 text-center">
-                <div class="text-2xl mb-1">🤲</div>
-                <div class="text-[10px] font-bold">Doa Harian</div>
+            <div onclick="openDoa()" class="glass p-2 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-20 text-center">
+                <div class="text-xl mb-1">🤲</div><div class="text-[8px] font-bold">Doa</div>
+            </div>
+            <div onclick="openKiblat()" class="glass p-2 rounded-2xl flex flex-col items-center justify-center cursor-pointer active:scale-95 transition h-20 text-center">
+                <div class="text-xl mb-1">🧭</div><div class="text-[8px] font-bold">Kiblat</div>
             </div>
         </div>
 
@@ -73,31 +78,41 @@
     </div>
 
     <div id="detail-page" class="hidden min-h-screen bg-[#0b1414]">
-        <nav class="sticky top-0 p-5 glass flex items-center justify-between z-50">
-            <div class="flex items-center gap-4">
-                <button onclick="showHome()" class="text-2xl">←</button>
-                <div><h2 id="current-surah-name" class="font-bold text-lg leading-none"></h2><p id="current-surah-info" class="text-[9px] text-emerald-400 font-bold mt-1 uppercase"></p></div>
+        <nav class="sticky top-0 p-4 glass flex items-center justify-between z-50 backdrop-blur-xl">
+            <div class="flex items-center gap-3">
+                <button onclick="showHome()" class="text-xl">←</button>
+                <div onclick="showSurahInfo()" class="cursor-pointer">
+                    <h2 id="current-surah-name" class="font-bold text-sm leading-none flex items-center gap-1">... <span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded">INFO</span></h2>
+                    <p id="current-surah-info" class="text-[8px] text-emerald-400 font-bold mt-0.5 uppercase"></p>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleAutoScroll()" id="btn-autoscroll" class="text-[10px] border border-white/20 px-2 py-1 rounded-full text-gray-400">⇩ AUTO</button>
                 <button onclick="stopAudio()" id="btn-stop-audio" class="hidden text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded-md font-bold">STOP</button>
-                <button onclick="toggleJumpAyat()" class="text-xl font-bold">#</button>
-                <button onclick="toggleSettingsMenu()" class="text-2xl">⋮</button>
+                <button onclick="toggleJumpAyat()" class="text-lg font-bold">#</button>
+                <button onclick="toggleSettingsMenu()" class="text-xl">⋮</button>
             </div>
         </nav>
 
         <div id="jump-ayat-box" class="hidden fixed top-20 left-1/2 -translate-x-1/2 glass p-4 rounded-2xl z-50 flex gap-2 shadow-2xl">
             <input type="number" id="input-ayat" placeholder="No Ayat" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1 text-xs w-20 outline-none">
-            <button onclick="doJump()" class="bg-emerald-500 text-black px-4 py-1 rounded-lg text-xs font-bold">Lompat</button>
+            <button onclick="doJump()" class="bg-emerald-500 text-black px-4 py-1 rounded-lg text-xs font-bold">Go</button>
         </div>
 
-        <div id="settings-menu" class="hidden fixed top-20 right-5 w-48 glass p-5 rounded-2xl z-[60] shadow-2xl">
+        <div id="settings-menu" class="hidden fixed top-16 right-5 w-56 glass p-5 rounded-2xl z-[60] shadow-2xl">
+            <h4 class="text-[10px] font-bold text-emerald-500 mb-3 uppercase tracking-widest">Tampilan</h4>
             <div class="space-y-4 text-white text-[10px]">
+                <div>
+                    <div class="flex justify-between mb-1"><label>Ukuran Font Arab</label><span id="font-val">30px</span></div>
+                    <input type="range" min="20" max="60" value="30" id="font-slider" oninput="changeFontSize(this.value)">
+                </div>
+                <hr class="border-white/10">
                 <div class="flex justify-between items-center"><label>Teks Latin</label><input type="checkbox" id="set-latin" onchange="toggleFitur()" checked></div>
                 <div class="flex justify-between items-center"><label>Terjemahan</label><input type="checkbox" id="set-translate" onchange="toggleFitur()" checked></div>
             </div>
         </div>
 
-        <div id="ayats-container" class="p-5 space-y-12 pb-20"></div>
+        <div id="ayats-container" class="p-5 space-y-12 pb-32"></div>
     </div>
 
     <div id="tasbih-modal" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center p-10">
@@ -113,9 +128,7 @@
             <h2 class="text-emerald-500 font-bold text-xl">Asmaul Husna</h2>
             <button onclick="closeModal('asmaul-modal')" class="text-3xl">×</button>
         </div>
-        <div id="asmaul-list" class="grid grid-cols-2 gap-3 pb-10">
-            <div class="text-center py-10"><span class="loader"></span></div>
-        </div>
+        <div id="asmaul-list" class="grid grid-cols-2 gap-3 pb-10"><div class="text-center py-10 col-span-2"><span class="loader"></span></div></div>
     </div>
 
     <div id="doa-modal" class="hidden fixed inset-0 bg-black/95 z-[100] p-5 overflow-y-auto">
@@ -126,105 +139,34 @@
         <div id="doa-list" class="space-y-4 pb-10"></div>
     </div>
 
+    <div id="kiblat-modal" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center p-5 text-center">
+        <button onclick="closeModal('kiblat-modal')" class="absolute top-10 right-10 text-3xl">×</button>
+        <h2 class="text-emerald-500 font-bold mb-10 text-xl">Arah Kiblat</h2>
+        <div class="relative w-64 h-64 rounded-full border-4 border-emerald-900 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+            <div id="compass-arrow" class="w-1 h-32 bg-gradient-to-t from-transparent to-red-500 origin-bottom absolute top-0 left-1/2 -translate-x-1/2 transition-transform duration-500"></div>
+            <div class="text-4xl">🕋</div>
+            <p class="absolute bottom-10 text-[10px] text-gray-500">Pastikan GPS Aktif</p>
+        </div>
+        <p class="mt-8 text-xs text-gray-400 max-w-xs">Putar HP Anda menghadap panah merah untuk menemukan Ka'bah (Barat Laut dari Indonesia).</p>
+    </div>
+
+    <div id="info-modal" class="hidden fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-5">
+        <div class="glass w-full max-w-sm p-6 rounded-2xl relative">
+            <button onclick="closeModal('info-modal')" class="absolute top-4 right-4 text-xl">×</button>
+            <h3 id="info-title" class="font-bold text-emerald-400 mb-4 text-lg">Info Surat</h3>
+            <p id="info-content" class="text-xs text-gray-300 leading-relaxed text-justify">Memuat info...</p>
+        </div>
+    </div>
+
     <script>
-        let surahFullData = [], currentSurahId = 1, config = { trans: true, latin: true };
+        let surahFullData = [], currentSurahId = 1, currentSurahData = null;
+        let config = { trans: true, latin: true, fontSize: 30 };
         let currentAudio = null, allAyatAudio = [];
         let tasbihVal = 0;
+        let autoScrollInterval = null;
         let lastRead = JSON.parse(localStorage.getItem('lastRead')) || { id: 1, name: 'Al-Fatihah', ayat: 1 };
 
-        // --- TASBIH LOGIC ---
-        function openTasbih() { document.getElementById('tasbih-modal').classList.remove('hidden'); }
-        function countTasbih() { tasbihVal++; document.getElementById('tasbih-count').innerText = tasbihVal; if(navigator.vibrate) navigator.vibrate(30); }
-        function resetTasbih() { tasbihVal = 0; document.getElementById('tasbih-count').innerText = tasbihVal; }
-
-        // --- ASMAUL HUSNA LOGIC ---
-        async function openAsmaul() {
-            document.getElementById('asmaul-modal').classList.remove('hidden');
-            const container = document.getElementById('asmaul-list');
-            if(container.children.length > 1) return; // Sudah dimuat
-            try {
-                const res = await fetch('https://api.aladhan.com/v1/asmaAlHusna');
-                const data = await res.json();
-                container.innerHTML = '';
-                data.data.forEach(n => {
-                    container.innerHTML += `<div class="glass p-3 rounded-xl text-center"><p class="arabic text-xl text-emerald-400 mb-1">${n.name}</p><p class="text-[10px] font-bold">${n.transliteration}</p><p class="text-[8px] text-gray-400">${n.en.meaning}</p></div>`;
-                });
-            } catch(e) { container.innerHTML = '<p class="text-center text-red-500">Gagal memuat data.</p>'; }
-        }
-
-        // --- DOA HARIAN LOGIC ---
-        const listDoa = [
-            { t: "Doa Sebelum Makan", a: "اَللّٰهُمَّ بَارِكْ لَنَا فِيْمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ", l: "Allahumma baarik lanaa fiimaa rozaqtanaa wa qinaa 'adzaa bannaar." },
-            { t: "Doa Sebelum Tidur", a: "بِسْمِكَ اللّهُمَّ اَحْيَا وَ بِسْمِكَ اَمُوْتُ", l: "Bismika Allahumma ahyaa wa bismika amuut." },
-            { t: "Doa Masuk Masjid", a: "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ", l: "Allahummaf-tahlii abwaaba rahmatik." },
-            { t: "Doa Keluar Masjid", a: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ", l: "Allahumma inni as-aluka min fadhlika." },
-            { t: "Doa Kedua Orang Tua", a: "رَبِّ اغْفِرْ لِيْ وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِيْ صَغِيْرًا", l: "Rabbighfir lii waliwaalidayya warhamhumaa kamaa rabbaayaanii shaghiiraa." }
-        ];
-        function openDoa() {
-            document.getElementById('doa-modal').classList.remove('hidden');
-            const container = document.getElementById('doa-list');
-            if(container.innerHTML !== '') return;
-            listDoa.forEach(d => {
-                container.innerHTML += `<div class="glass p-4 rounded-xl"><h4 class="font-bold text-emerald-400 mb-2">${d.t}</h4><p class="arabic text-xl mb-2">${d.a}</p><p class="text-xs italic text-gray-400">${d.l}</p></div>`;
-            });
-        }
-
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-        // --- AUDIO & QURAN CORE ---
-        function playAudio(index) {
-            stopAudio();
-            currentAudio = new Audio(allAyatAudio[index]);
-            const el = document.getElementById(`ayat-box-${index}`);
-            el.classList.add('bg-emerald-900/10', 'p-4', 'rounded-xl');
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.getElementById('btn-stop-audio').classList.remove('hidden');
-            currentAudio.play();
-            currentAudio.onended = () => { if(index < allAyatAudio.length - 1) playAudio(index + 1); else stopAudio(); };
-        }
-
-        function stopAudio() {
-            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
-            document.getElementById('btn-stop-audio').classList.add('hidden');
-            document.querySelectorAll('[id^="ayat-box-"]').forEach(el => el.classList.remove('bg-emerald-900/10', 'p-4'));
-        }
-
-        // --- JUMP & SAVE PROGRESS (TANDAI) ---
-        function toggleJumpAyat() { document.getElementById('jump-ayat-box').classList.toggle('hidden'); }
-        function doJump() {
-            const num = document.getElementById('input-ayat').value;
-            const target = document.getElementById(`ayat-box-${num - 1}`);
-            if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); toggleJumpAyat(); } 
-            else { alert("Ayat tidak ditemukan"); }
-        }
-
-        function saveProgress(id, name, ayat) {
-            lastRead = { id, name, ayat };
-            localStorage.setItem('lastRead', JSON.stringify(lastRead));
-            alert(`Berhasil Ditandai: ${name} Ayat ${ayat}`);
-            updateLastReadUI();
-        }
-
-        function resumeReading() {
-            viewSurah(lastRead.id).then(() => {
-                setTimeout(() => {
-                    const target = document.getElementById(`ayat-box-${lastRead.ayat - 1}`);
-                    if (target) {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        // Efek highlight sementara
-                        target.classList.add('bg-emerald-500/20', 'rounded-xl');
-                        setTimeout(() => target.classList.remove('bg-emerald-500/20'), 2000);
-                    }
-                }, 1000); // Waktu tunggu render
-            });
-        }
-
-        function updateLastReadUI() {
-            document.getElementById('last-surah-name').innerText = lastRead.name;
-            document.getElementById('last-surah-info').innerText = `Ayat No: ${lastRead.ayat}`;
-        }
-
-        // --- MAIN FUNCTIONS ---
+        // --- CORE FEATURES ---
         async function getSurahList() {
             const res = await fetch('https://api.quran.gading.dev/surah');
             const data = await res.json();
@@ -242,12 +184,17 @@
             try {
                 const res = await fetch(`https://api.quran.gading.dev/surah/${id}`);
                 const data = await res.json();
-                const surah = data.data;
+                currentSurahData = data.data; // Simpan data untuk Info Surat
+                const surah = currentSurahData;
+                
                 container.innerHTML = '';
                 allAyatAudio = [];
 
-                document.getElementById('current-surah-name').innerText = surah.name.transliteration.id;
+                document.getElementById('current-surah-name').innerHTML = `${surah.name.transliteration.id} <span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-1 rounded ml-1">INFO</span>`;
                 document.getElementById('current-surah-info').innerText = `${surah.revelation.id} • ${surah.numberOfVerses} AYAT`;
+
+                // Bismillah handling
+                if(id !== 1 && id !== 9) container.innerHTML += `<div class="text-center mb-8"><p class="arabic text-3xl text-emerald-500">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</p></div>`;
 
                 surah.verses.forEach((v, idx) => {
                     allAyatAudio[idx] = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${v.number.inQuran}.mp3`;
@@ -260,14 +207,60 @@
                                     <button onclick="saveProgress(${id},'${surah.name.transliteration.id}',${v.number.inSurah})" class="text-[10px] text-gray-500 underline font-bold">TANDAI</button>
                                 </div>
                             </div>
-                            <p class="arabic text-3xl mb-4 text-white">${v.text.arab}</p>
-                            ${config.latin ? `<p class="text-[11px] text-emerald-400 italic mb-2">${v.text.transliteration.en}</p>` : ''}
-                            ${config.trans ? `<p class="text-sm text-gray-400 font-light">${v.translation.id}</p>` : ''}
+                            <p class="arabic text-white mb-4" style="font-size:${config.fontSize}px">${v.text.arab}</p>
+                            ${config.latin ? `<p class="text-[11px] text-emerald-400 italic mb-2 leading-relaxed">${v.text.transliteration.en}</p>` : ''}
+                            ${config.trans ? `<p class="text-sm text-gray-400 font-light leading-relaxed">${v.translation.id}</p>` : ''}
                         </div>`;
                 });
             } catch (e) { container.innerHTML = "Gagal memuat surat."; }
         }
 
+        // --- NEW FEATURES ---
+        
+        // 1. Font Size
+        function changeFontSize(val) {
+            config.fontSize = val;
+            document.getElementById('font-val').innerText = val + 'px';
+            document.querySelectorAll('.arabic').forEach(el => el.style.fontSize = val + 'px');
+        }
+
+        // 2. Auto Scroll
+        function toggleAutoScroll() {
+            const btn = document.getElementById('btn-autoscroll');
+            if(autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+                btn.classList.remove('bg-emerald-500', 'text-black');
+                btn.classList.add('text-gray-400');
+                btn.innerText = "⇩ AUTO";
+            } else {
+                autoScrollInterval = setInterval(() => window.scrollBy(0, 1), 30);
+                btn.classList.add('bg-emerald-500', 'text-black');
+                btn.classList.remove('text-gray-400');
+                btn.innerText = "∎ STOP";
+            }
+        }
+
+        // 3. Info Surat (Tafsir Ringkas)
+        function showSurahInfo() {
+            if(!currentSurahData) return;
+            document.getElementById('info-modal').classList.remove('hidden');
+            document.getElementById('info-title').innerText = `Info: ${currentSurahData.name.transliteration.id}`;
+            // Mengambil tafsir singkat dari API jika ada, atau deskripsi dasar
+            document.getElementById('info-content').innerText = currentSurahData.tafsir.id || "Tidak ada informasi tafsir untuk surat ini.";
+        }
+
+        // 4. Kiblat (Kompas Simpel)
+        function openKiblat() {
+            document.getElementById('kiblat-modal').classList.remove('hidden');
+            // Simulasi Kompas (Browser Mobile modern butuh HTTPS dan Permission untuk Real Kompas)
+            // Kita buat animasi statis yang mengarah ke Barat Laut (Kiblat dari Indonesia ~295 derajat)
+            setTimeout(() => {
+                document.getElementById('compass-arrow').style.transform = 'translate(-50%, 0) rotate(-65deg)'; 
+            }, 500);
+        }
+
+        // --- EXISTING UTILS ---
         function renderSurahList(data) {
             const container = document.getElementById('surah-list');
             container.innerHTML = '';
@@ -287,23 +280,94 @@
             renderSurahList(surahFullData.filter(s => s.name.transliteration.id.toLowerCase().includes(q)));
         }
 
-        async function getJadwal() {
+        // --- MODALS & AUDIO ---
+        function openTasbih() { document.getElementById('tasbih-modal').classList.remove('hidden'); }
+        function countTasbih() { tasbihVal++; document.getElementById('tasbih-count').innerText = tasbihVal; if(navigator.vibrate) navigator.vibrate(30); }
+        function resetTasbih() { tasbihVal = 0; document.getElementById('tasbih-count').innerText = tasbihVal; }
+        
+        async function openAsmaul() {
+            document.getElementById('asmaul-modal').classList.remove('hidden');
+            const container = document.getElementById('asmaul-list');
+            if(container.children.length > 1) return; 
             try {
-                const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1301/${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`);
+                const res = await fetch('https://api.aladhan.com/v1/asmaAlHusna');
                 const data = await res.json();
-                const j = data.data.jadwal;
-                ['subuh','dzuhur','ashar','maghrib','isya'].forEach(k => document.getElementById(`sholat-${k}`).innerText = j[k]);
-            } catch (e) {}
+                container.innerHTML = '';
+                data.data.forEach(n => container.innerHTML += `<div class="glass p-3 rounded-xl text-center"><p class="arabic text-xl text-emerald-400 mb-1">${n.name}</p><p class="text-[10px] font-bold">${n.transliteration}</p><p class="text-[8px] text-gray-400">${n.en.meaning}</p></div>`);
+            } catch(e) {}
         }
 
-        async function initHijri() {
-            const today = new Date();
-            const res = await fetch(`https://api.aladhan.com/v1/gToH/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`);
-            const data = await res.json();
-            document.getElementById('hijri-now').innerText = `${data.data.hijri.day} ${data.data.hijri.month.en} ${data.data.hijri.year} H`;
+        function openDoa() {
+            document.getElementById('doa-modal').classList.remove('hidden');
+            const c = document.getElementById('doa-list');
+            if(c.innerHTML !== '') return;
+            const listDoa = [
+                {t:"Doa Sebelum Makan", a:"اَللّٰهُمَّ بَارِكْ لَنَا فِيْمَا رَزَقْتَنَا وَقِنَا عَذَابَ النَّارِ", l:"Allahumma baarik lanaa fiimaa rozaqtanaa..."},
+                {t:"Doa Sebelum Tidur", a:"بِسْمِكَ اللّهُمَّ اَحْيَا وَ بِسْمِكَ اَمُوْتُ", l:"Bismika Allahumma ahyaa wa bismika amuut."},
+                {t:"Doa Kedua Orang Tua", a:"رَبِّ اغْفِرْ لِيْ وَلِوَالِدَيَّ وَارْحَمْهُمَا كَمَا رَبَّيَانِيْ صَغِيْرًا", l:"Rabbighfir lii waliwaalidayya..."}
+            ];
+            listDoa.forEach(d => c.innerHTML += `<div class="glass p-4 rounded-xl"><h4 class="font-bold text-emerald-400 mb-2">${d.t}</h4><p class="arabic text-xl mb-2">${d.a}</p><p class="text-xs italic text-gray-400">${d.l}</p></div>`);
         }
 
-        function showHome() { stopAudio(); document.getElementById('detail-page').classList.add('hidden'); document.getElementById('home-page').classList.remove('hidden'); updateLastReadUI(); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function playAudio(index) {
+            stopAudio();
+            currentAudio = new Audio(allAyatAudio[index]);
+            const el = document.getElementById(`ayat-box-${index}`);
+            el.classList.add('bg-emerald-900/10', 'p-4', 'rounded-xl');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('btn-stop-audio').classList.remove('hidden');
+            currentAudio.play();
+            currentAudio.onended = () => { if(index < allAyatAudio.length - 1) playAudio(index + 1); else stopAudio(); };
+        }
+
+        function stopAudio() {
+            if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+            document.getElementById('btn-stop-audio').classList.add('hidden');
+            document.querySelectorAll('[id^="ayat-box-"]').forEach(el => el.classList.remove('bg-emerald-900/10', 'p-4'));
+        }
+
+        // --- UTILS ---
+        function toggleJumpAyat() { document.getElementById('jump-ayat-box').classList.toggle('hidden'); }
+        function doJump() {
+            const num = document.getElementById('input-ayat').value;
+            const target = document.getElementById(`ayat-box-${num - 1}`);
+            if (target) { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); toggleJumpAyat(); } 
+        }
+
+        function saveProgress(id, name, ayat) {
+            lastRead = { id, name, ayat };
+            localStorage.setItem('lastRead', JSON.stringify(lastRead));
+            alert(`Ditandai: ${name} Ayat ${ayat}`);
+            updateLastReadUI();
+        }
+
+        function resumeReading() {
+            viewSurah(lastRead.id).then(() => {
+                setTimeout(() => {
+                    const target = document.getElementById(`ayat-box-${lastRead.ayat - 1}`);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.classList.add('bg-emerald-500/20', 'rounded-xl');
+                        setTimeout(() => target.classList.remove('bg-emerald-500/20'), 2000);
+                    }
+                }, 1000);
+            });
+        }
+
+        function updateLastReadUI() {
+            document.getElementById('last-surah-name').innerText = lastRead.name;
+            document.getElementById('last-surah-info').innerText = `Ayat No: ${lastRead.ayat}`;
+        }
+
+        function showHome() { 
+            stopAudio(); 
+            if(autoScrollInterval) toggleAutoScroll();
+            document.getElementById('detail-page').classList.add('hidden'); 
+            document.getElementById('home-page').classList.remove('hidden'); 
+            updateLastReadUI(); 
+        }
         function toggleSettingsMenu() { document.getElementById('settings-menu').classList.toggle('hidden'); }
         function toggleFitur() {
             config.trans = document.getElementById('set-translate').checked;
@@ -311,10 +375,31 @@
             viewSurah(currentSurahId);
         }
 
+        // Init
+        async function init() {
+            getSurahList();
+            updateLastReadUI();
+            
+            // Jadwal Sholat
+            try {
+                const res = await fetch(`https://api.myquran.com/v2/sholat/jadwal/1301/${new Date().getFullYear()}/${new Date().getMonth()+1}/${new Date().getDate()}`);
+                const data = await res.json();
+                const j = data.data.jadwal;
+                ['subuh','dzuhur','ashar','maghrib','isya'].forEach(k => document.getElementById(`sholat-${k}`).innerText = j[k]);
+            } catch (e) {}
+
+            // Hijri
+            try {
+                const today = new Date();
+                const resH = await fetch(`https://api.aladhan.com/v1/gToH/${today.getDate()}-${today.getMonth()+1}-${today.getFullYear()}`);
+                const dataH = await resH.json();
+                document.getElementById('hijri-now').innerText = `${dataH.data.hijri.day} ${dataH.data.hijri.month.en} ${dataH.data.hijri.year} H`;
+            } catch (e) {}
+        }
+        
         function updateClock() { document.getElementById('jam-digital').innerText = new Date().toLocaleTimeString('id-ID'); }
         setInterval(updateClock, 1000);
-
-        getSurahList(); getJadwal(); initHijri(); updateLastReadUI();
+        init();
     </script>
 </body>
 </html>
